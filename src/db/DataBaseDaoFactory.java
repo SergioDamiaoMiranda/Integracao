@@ -9,8 +9,6 @@ import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class DataBaseDaoFactory {
 
@@ -18,24 +16,13 @@ public class DataBaseDaoFactory {
         
         try {
             Class.forName("com.mysql.jdbc.Driver").newInstance();
-        } catch (java.lang.ClassNotFoundException e) {
-            System.out.println("************************************************");
-            System.out.println("Erro Class Nao Encontrada - " + e);
-            Logger.getLogger(DataBaseDaoFactory.class.getName()).log(Level.SEVERE, null, e);
-        } catch (InstantiationException ex) {
-            System.out.println("------------------------------------------------");
-            System.out.println("Erro Class Nao Encontrada - " + ex);
-            Logger.getLogger(DataBaseDaoFactory.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            System.out.println("================================================");
-            System.out.println("Erro Class Nao Encontrada - " + ex);
-            Logger.getLogger(DataBaseDaoFactory.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (java.lang.ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+            System.out.println("Erro Class Nao Encontrada - " + e.getMessage());
         }
         com.mysql.jdbc.Connection conn = null;
 
         try {
-            //String urlPg = "jdbc:mysql://localhost:3306/apcontas";
-            String urlPg = "jdbc:mysql://" + getLinhasIP() + ":3306/integracao_bd";
+            String urlPg = "jdbc:mysql://" + getLinhasIP() + ":3306/integracao_bd";       
             conn = (com.mysql.jdbc.Connection) DriverManager.getConnection(urlPg, "root", "root");
         } catch (SQLException | NullPointerException ex) {
             System.out.println("Erro Servidor MySQL." + ex);

@@ -5,6 +5,8 @@
  */
 package integracao;
 
+import dao.HArquivoDAO;
+import dao.LojaDAO;
 import dao.ParametroDAO;
 import db.DaoException;
 import java.awt.Color;
@@ -22,7 +24,7 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.plaf.FontUIResource;
-import to.CadastroLojaTO;
+import to.LojaTO;
 
 /**
  *
@@ -118,11 +120,9 @@ public class Integracao {
 
                 if (parteNome.equals("cad-loja")) ProcessaCadastroLoja(inputStream, arquivos.getName());
                  
-            } catch (FileNotFoundException ex) {
+            } catch (DaoException | IOException ex) {
                 System.out.println("Erro processar arquivo - " + arquivos.getName() + ". \n" + ex.getMessage());
-            } catch (IOException ex) {
-                System.out.println("Erro processar arquivo - " + arquivos.getName() + ". \n" + ex.getMessage());
-            } 
+            }
             System.out.println("------------------------------ processado arq. " + arquivos.getName());            
 	}
 
@@ -130,10 +130,10 @@ public class Integracao {
         
     }
 
-    private static void ProcessaCadastroLoja(BufferedReader inputStream, String nomeArquivo) throws IOException {
-        String linha;
+    private static void ProcessaCadastroLoja(BufferedReader inputStream, String nomeArquivo) throws IOException, DaoException {
+        String linha, proc = "NAO";
         int nLinha = 1;
-        CadastroLojaTO clTO = new CadastroLojaTO();
+        LojaTO clTO = new LojaTO();
         while ((linha  = inputStream.readLine()) != null ){
             
             switch(nLinha) {
@@ -151,9 +151,19 @@ public class Integracao {
             nLinha = nLinha + 1;
         }
         clTO.setArquivo(nomeArquivo);   
-        System.out.println(" ======================= Objeto cadastro loja " + clTO.toString());
-        // Grava registro na tabela loja
         
+        try {
+            // Grava registro na tabela loja
+            LojaDAO.inserirLoja(clTO);
+            proc = "Sim";
+            // move arquivo processado
+            
+        } catch (DaoException ex) {
+            // move arquivo erro com msg de erro no babecalho
+            System.out.println(" ======================= erro +++++ " + ex.getMessage());
+        }
+         // Grava arquivo log arquivo processado OK
+        HArquivoDAO.inserirLoja(nomeArquivo, proc);
     }
 }
 
