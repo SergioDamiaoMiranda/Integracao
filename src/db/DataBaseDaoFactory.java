@@ -48,7 +48,7 @@ public class DataBaseDaoFactory {
         FileInputStream stream;
         String ip;
         try {
-            stream = new FileInputStream(getDiretorioAtual() + "\\ip.ini");
+            stream = new FileInputStream(getDiretorioAtual() + "\\ipbd.ini");
             InputStreamReader reader = new InputStreamReader(stream);
             BufferedReader br = new BufferedReader(reader);
             ip = br.readLine().trim();

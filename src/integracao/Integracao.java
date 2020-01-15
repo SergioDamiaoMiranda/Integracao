@@ -9,12 +9,20 @@ import dao.ParametroDAO;
 import db.DaoException;
 import java.awt.Color;
 import java.awt.Font;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.plaf.FontUIResource;
+import to.CadastroLojaTO;
 
 /**
  *
@@ -22,6 +30,11 @@ import javax.swing.plaf.FontUIResource;
  */
 public class Integracao {
 
+    static String diretorioPadrao;
+    static String localPathEnviar;
+    static String localPathErros;
+    static String localPathProcessados;
+       
 
     public static void main(String[] args) {
         // Verifica a estrutura dos arquivos
@@ -37,13 +50,19 @@ public class Integracao {
         
         // Verifica estrutura dos diretórios e cria se não existir  
         try {
-            String localPathErros       = ParametroDAO.getDiretorio() + File.separator  + "erros" + File.separator;
-            String localPathProcessados = ParametroDAO.getDiretorio() + File.separator  + "processados" + File.separator;            
+            diretorioPadrao = ParametroDAO.getDiretorio();
+            localPathEnviar      = diretorioPadrao + File.separator  + "enviar" + File.separator;
+            localPathErros       = diretorioPadrao + File.separator  + "erros" + File.separator;
+            localPathProcessados = diretorioPadrao + File.separator  + "processados" + File.separator;            
             File diretorio = new File(localPathErros);
             if (!diretorio.exists()) {
                 diretorio.mkdirs();
             } 
             diretorio = new File(localPathProcessados);
+            if (!diretorio.exists()) {
+                diretorio.mkdirs();
+            }    
+            diretorio = new File(localPathEnviar);
             if (!diretorio.exists()) {
                 diretorio.mkdirs();
             }             
@@ -82,8 +101,58 @@ public class Integracao {
     
     private static void processaArquivos(){
         // pegar arquivo no diretorio padrao
+
+        String linha, parteNome;
+        PrintWriter outputStream = null;
+        BufferedReader inputStream;        
         
-        System.out.println("Processando arquivo..");
+	File file = new File(localPathEnviar);
+	File afile[] = file.listFiles();
+	int i = 0;
+	for (int j = afile.length; i < j; i++) {
+            File arquivos = afile[i];                
+            System.out.println(" ======================= Processando (1) " + arquivos.getName());
+            parteNome = arquivos.getName().substring(0,arquivos.getName().indexOf("_"));            
+            try {
+                inputStream = new BufferedReader(new FileReader(arquivos));
+
+                if (parteNome.equals("cad-loja")) ProcessaCadastroLoja(inputStream, arquivos.getName());
+                 
+            } catch (FileNotFoundException ex) {
+                System.out.println("Erro processar arquivo - " + arquivos.getName() + ". \n" + ex.getMessage());
+            } catch (IOException ex) {
+                System.out.println("Erro processar arquivo - " + arquivos.getName() + ". \n" + ex.getMessage());
+            } 
+            System.out.println("------------------------------ processado arq. " + arquivos.getName());            
+	}
+
+        System.out.println("Fim processa arquivos...");
+        
+    }
+
+    private static void ProcessaCadastroLoja(BufferedReader inputStream, String nomeArquivo) throws IOException {
+        String linha;
+        int nLinha = 1;
+        CadastroLojaTO clTO = new CadastroLojaTO();
+        while ((linha  = inputStream.readLine()) != null ){
+            
+            switch(nLinha) {
+                case 1:
+                    clTO.setCodigo(linha.replace("<codigo>", "").replace("</codigo>", ""));
+                    break;
+                case 2:
+                    clTO.setCnpj(linha.replace("<cnpj>", "").replace("</cnpj>", ""));
+                    break;
+                case 3:
+                    clTO.setNome(linha.replace("<nome>", "").replace("</nome>", ""));
+                    break;
+            }
+           
+            nLinha = nLinha + 1;
+        }
+        clTO.setArquivo(nomeArquivo);   
+        System.out.println(" ======================= Objeto cadastro loja " + clTO.toString());
+        // Grava registro na tabela loja
         
     }
 }
