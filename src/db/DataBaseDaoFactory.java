@@ -23,7 +23,7 @@ public class DataBaseDaoFactory {
 
         try {
             String urlPg = "jdbc:mysql://" + getLinhasIP() + ":3306/integracao_bd";       
-            conn = (com.mysql.jdbc.Connection) DriverManager.getConnection(urlPg, "root", "root");
+            conn = (com.mysql.jdbc.Connection) DriverManager.getConnection(urlPg, "integracao", "integracao");
         } catch (SQLException | NullPointerException ex) {
             System.out.println("Erro Servidor MySQL." + ex);
         }

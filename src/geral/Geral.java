@@ -7,6 +7,13 @@ package geral;
 import exceptions.ValidacaoException;
 import java.awt.Component;
 import java.awt.Container;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
@@ -328,5 +335,55 @@ public class Geral {
             r = "0" + r;
         }
         return r;
+    }
+        
+    public static void copiaArquivo(File origem, File destino) throws IOException {
+        try {
+            InputStream in = new FileInputStream(origem);
+            OutputStream out = new FileOutputStream(destino);           // Transferindo bytes de entrada para saída
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+            in.close();
+            out.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("Erro Copia arquivo" + e.toString());
+        }
+    }
+
+    public static void moveArquivos(File origem, File destino) throws IOException {
+        try {
+            InputStream in = new FileInputStream(origem);
+            OutputStream out = new FileOutputStream(destino);           // Transferindo bytes de entrada para saída
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+            in.close();
+            out.close();
+            origem.delete();
+        } catch (FileNotFoundException e) {
+            System.out.println("Erro mover arquivo " + e.toString());
+
+        }
+    }
+
+    public static void moveArquivosDeDirectorio(File diretorioOrigem, File diretorioDestino) {
+        if (diretorioOrigem.isDirectory()) {
+            if (!diretorioDestino.exists()) {
+                diretorioDestino.mkdir();
+            }
+            String[] children = diretorioOrigem.list();
+            for (String children1 : children) {
+                try {
+                    moveArquivos(new File(diretorioOrigem, children1), new File(diretorioDestino, children1));
+                } catch (IOException ex) {
+                    Logger.getLogger(Geral.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
     }
 }

@@ -11,7 +11,7 @@ public class HArquivoDAO {
 
     java.util.Date hoje = new java.util.Date();
     private static final String INSERT_SQL
-            = "INSERT INTO hist_processamento "
+            = "INSERT INTO hist_arquivos "
             + "(arquivo, processado, data_cadastro, hora_cadastro)"
             + "VALUES(?,?,?,?)";
 

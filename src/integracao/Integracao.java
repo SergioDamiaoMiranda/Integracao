@@ -118,7 +118,7 @@ public class Integracao {
             try {
                 inputStream = new BufferedReader(new FileReader(arquivos));
 
-                if (parteNome.equals("cad-loja")) ProcessaCadastroLoja(inputStream, arquivos.getName());
+                if (parteNome.equals("cad-loja")) ProcessaCadastroLoja(inputStream, arquivos);
                  
             } catch (DaoException | IOException ex) {
                 System.out.println("Erro processar arquivo - " + arquivos.getName() + ". \n" + ex.getMessage());
@@ -130,7 +130,7 @@ public class Integracao {
         
     }
 
-    private static void ProcessaCadastroLoja(BufferedReader inputStream, String nomeArquivo) throws IOException, DaoException {
+    private static void ProcessaCadastroLoja(BufferedReader inputStream, File arquivo) throws IOException, DaoException {
         String linha, proc = "NAO";
         int nLinha = 1;
         LojaTO clTO = new LojaTO();
@@ -150,20 +150,23 @@ public class Integracao {
            
             nLinha = nLinha + 1;
         }
-        clTO.setArquivo(nomeArquivo);   
+        clTO.setArquivo(arquivo.getName());   
+        inputStream.close();
         
         try {
             // Grava registro na tabela loja
             LojaDAO.inserirLoja(clTO);
             proc = "Sim";
-            // move arquivo processado
-            
+             // move arquivo processado
+            geral.Geral.moveArquivos(arquivo, new File(arquivo.getPath().replace("enviar", "processados").replace(".env", ".ok")));            
         } catch (DaoException ex) {
-            // move arquivo erro com msg de erro no babecalho
-            System.out.println(" ======================= erro +++++ " + ex.getMessage());
+            // move arquivo processado
+            File novoArquivo = new File(arquivo.getPath().replace("enviar", "erros").replace("cad-", "Loja_JA_cadastrada_cad-").replace(".env", ".err"));
+            geral.Geral.moveArquivos(arquivo, novoArquivo);
         }
          // Grava arquivo log arquivo processado OK
-        HArquivoDAO.inserirLoja(nomeArquivo, proc);
+        HArquivoDAO.inserirLoja(arquivo.getName(), proc);
+
     }
 }
 
