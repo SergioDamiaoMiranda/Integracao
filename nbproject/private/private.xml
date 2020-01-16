@@ -5,8 +5,9 @@
         <group>
             <file>file:/C:/Projetos/Netbeans/Integracao/src/dao/HArquivoDAO.java</file>
             <file>file:/C:/Projetos/Netbeans/Integracao/src/integracao/Integracao.java</file>
-            <file>file:/C:/Projetos/Netbeans/Integracao/src/dao/LojaDAO.java</file>
-            <file>file:/C:/Projetos/Netbeans/Integracao/src/to/HArquivoTO.java</file>
+            <file>file:/C:/Projetos/Netbeans/Integracao/src/dao/ProdutoDAO.java</file>
+            <file>file:/C:/Projetos/Netbeans/Integracao/src/to/ProdutoTO.java</file>
+            <file>file:/C:/Projetos/Netbeans/Integracao/src/geral/Geral.java</file>
         </group>
     </open-files>
 </project-private>
