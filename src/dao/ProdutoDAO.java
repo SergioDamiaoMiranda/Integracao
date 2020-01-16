@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import to.HistoricoTO;
 import to.ProdutoTO;
 
 public class ProdutoDAO {
@@ -65,6 +66,20 @@ public class ProdutoDAO {
                 throw new DaoException(ex);
             }
         }
+        // Inserindo historico movimentacao
+        HistoricoTO hTO = new HistoricoTO();
+        hTO.setCnpj(prTO.getCnpj());
+        hTO.setTipo("C");
+        hTO.setCodigo(prTO.getCodigo());
+        hTO.setEan(prTO.getEan());
+        hTO.setQuantidade(prTO.getQuantidade());
+        hTO.setQual_foi_chave("");
+        hTO.setObservacao(prTO.getObservacao());
+        hTO.setArquivo(prTO.getArquivo());
+        hTO.setDataMovimentacao(dataS);
+        hTO.setHoraMovimentacao(horaS);
+        HistoricoDAO.inserirHistorico(hTO);
+
     }
 
 }

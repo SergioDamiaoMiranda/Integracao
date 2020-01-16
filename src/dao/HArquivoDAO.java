@@ -19,7 +19,7 @@ public class HArquivoDAO {
         return DataBaseDaoFactory.getConnection();
     }
 
-    public static void inserirLoja(String arq, String proc) throws DaoException {
+    public static void inserirHistorico(String arq, String proc) throws DaoException {
         Connection con = null;
         PreparedStatement ps = null;        // Data Hora Systema
         String data = "yyyy/MM/dd";

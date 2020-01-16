@@ -5,8 +5,10 @@
  */
 package integracao;
 
+import dao.AlteraStatusDAO;
 import dao.HArquivoDAO;
 import dao.LojaDAO;
+import dao.MovimentacaoDAO;
 import dao.ParametroDAO;
 import dao.ProdutoDAO;
 import db.DaoException;
@@ -14,18 +16,17 @@ import java.awt.Color;
 import java.awt.Font;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.plaf.FontUIResource;
+import to.AlteraStatusTO;
 import to.LojaTO;
+import to.MovimentacaoTO;
 import to.ProdutoTO;
 
 /**
@@ -115,24 +116,25 @@ public class Integracao {
 	int i = 0;
 	for (int j = afile.length; i < j; i++) {
             File arquivos = afile[i];                
-            System.out.println(" ======================= Processando (1) " + arquivos.getName());
             parteNome = arquivos.getName().substring(0,arquivos.getName().indexOf("_"));            
             try {
                 inputStream = new BufferedReader(new FileReader(arquivos));
 
-                if (parteNome.equals("cad-produto")) ProcessaCadastroProduto(inputStream, arquivos);                
+                if (parteNome.equals("mov-produto")) ProcessaMovimentacao(inputStream, arquivos); 
                 else {
-                    if (parteNome.equals("cad-loja")) ProcessaCadastroLoja(inputStream, arquivos);
+                    if (parteNome.equals("alt-status")) ProcessaAlteracaoStatus(inputStream, arquivos); 
+                    else {
+                        if (parteNome.equals("cad-produto")) ProcessaCadastroProduto(inputStream, arquivos);                
+                        else {
+                            if (parteNome.equals("cad-loja")) ProcessaCadastroLoja(inputStream, arquivos);
+                        }
+                    }
                 }
                  
             } catch (DaoException | IOException ex) {
                 System.out.println("Erro processar arquivo - " + arquivos.getName() + ". \n" + ex.getMessage());
-            }
-            System.out.println("------------------------------ processado arq. " + arquivos.getName());            
-	}
-
-        System.out.println("Fim processa arquivos...");
-        
+            }      
+	}    
     }
 
     private static void ProcessaCadastroLoja(BufferedReader inputStream, File arquivo) throws IOException, DaoException {
@@ -143,13 +145,13 @@ public class Integracao {
             
             switch(nLinha) {
                 case 1:
-                    clTO.setCodigo(linha.replace("<codigo>", "").replace("</codigo>", ""));
+                    clTO.setCodigo(linha.replace("<codigo>", "").replace("</codigo>", "").trim());
                     break;
                 case 2:
-                    clTO.setCnpj(linha.replace("<cnpj>", "").replace("</cnpj>", ""));
+                    clTO.setCnpj(linha.replace("<cnpj>", "").replace("</cnpj>", "").trim());
                     break;
                 case 3:
-                    clTO.setNome(linha.replace("<nome>", "").replace("</nome>", ""));
+                    clTO.setNome(linha.replace("<nome>", "").replace("</nome>", "").trim());
                     break;
             }
            
@@ -170,7 +172,7 @@ public class Integracao {
             geral.Geral.moveArquivos(arquivo, novoArquivo);
         }
          // Grava arquivo log arquivo processado OK
-        HArquivoDAO.inserirLoja(arquivo.getName(), proc);
+        HArquivoDAO.inserirHistorico(arquivo.getName(), proc);
 
     }
     
@@ -182,25 +184,25 @@ public class Integracao {
             
             switch(nLinha) {
                 case 1:
-                    prTO.setCnpj(linha.replace("<cnpj>", "").replace("</cnpj>", ""));
+                    prTO.setCnpj(linha.replace("<cnpj>", "").replace("</cnpj>", "").trim());
                     break;                    
                 case 2:
-                    prTO.setCodigo(linha.replace("<codigo>", "").replace("</codigo>", ""));
+                    prTO.setCodigo(linha.replace("<codigo>", "").replace("</codigo>", "").trim());
                     break;
                 case 3:
-                    prTO.setEan(linha.replace("<ean>", "").replace("</ean>", ""));
+                    prTO.setEan(linha.replace("<ean>", "").replace("</ean>", "").trim());
                     break;
                 case 4:
-                    prTO.setDescricao(linha.replace("<descricao>", "").replace("</descricao>", ""));
+                    prTO.setDescricao(linha.replace("<descricao>", "").replace("</descricao>", "").trim());
                     break; 
                 case 5:
-                    prTO.setUnidade(linha.replace("<unidade>", "").replace("</unidade>", ""));
+                    prTO.setUnidade(linha.replace("<unidade>", "").replace("</unidade>", "").trim());
                     break;   
                 case 6:
                     prTO.setQuantidade(Double.valueOf(linha.replace("<quantidade>", "").replace("</quantidade>", "")));
                     break; 
                 case 7:
-                    prTO.setObservacao(linha.replace("<observacao>", "").replace("</observacao>", ""));
+                    prTO.setObservacao(linha.replace("<observacao>", "").replace("</observacao>", "").trim());
                     break;                     
             }
            
@@ -208,7 +210,6 @@ public class Integracao {
         }
         prTO.setArquivo(arquivo.getName());   
         inputStream.close();
-        System.out.println("------------------------------ objeto  " + prTO.toString());  
         try {
             // Grava registro na tabela loja
             ProdutoDAO.inserirProduto(prTO);
@@ -216,13 +217,107 @@ public class Integracao {
              // move arquivo processado
             geral.Geral.moveArquivos(arquivo, new File(arquivo.getPath().replace("enviar", "processados").replace(".env", ".ok")));            
         } catch (DaoException ex) {
-                        System.out.println("------------------------------ erro  " + ex.getMessage());  
             // move arquivo processado
             File novoArquivo = new File(arquivo.getPath().replace("enviar", "erros").replace("cad-", "Produto_JA_cadastrada_cad-").replace(".env", ".err"));
             geral.Geral.moveArquivos(arquivo, novoArquivo);
         }
          // Grava arquivo log arquivo processado OK
-        HArquivoDAO.inserirLoja(arquivo.getName(), proc);
+        HArquivoDAO.inserirHistorico(arquivo.getName(), proc);
+
+    }    
+    
+    private static void ProcessaAlteracaoStatus(BufferedReader inputStream, File arquivo) throws IOException, DaoException {
+        String linha, proc = "NAO";
+        int nLinha = 1;
+        AlteraStatusTO alTO = new AlteraStatusTO();
+        while ((linha  = inputStream.readLine()) != null ){
+            
+            switch(nLinha) {
+                case 1:
+                    alTO.setCnpj(linha.replace("<cnpj>", "").replace("</cnpj>", "").trim());
+                    break;                    
+                case 2:
+                    alTO.setCodigo(linha.replace("<codigo>", "").replace("</codigo>", "").trim());
+                    break;
+                case 3:
+                    alTO.setEan(linha.replace("<ean>", "").replace("</ean>", "").trim());
+                    break;
+                case 4:
+                    alTO.setChave(linha.replace("<qual_a_chave>", "").replace("</qual_a_chave>", "").trim());
+                    break; 
+                case 5:
+                    alTO.setNovoStatus(linha.replace("<novostatus>", "").replace("</novostatus>", "").trim());
+                    break;                     
+                case 6:
+                    alTO.setObservacao(linha.replace("<observacao>", "").replace("</observacao>", "").trim());
+                    break;                     
+            }
+           
+            nLinha = nLinha + 1;
+        }
+        inputStream.close();
+        try {
+            // Grava registro na tabela loja
+            AlteraStatusDAO.alterarStatusProduto(alTO, arquivo.getName());
+            proc = "Sim";
+             // move arquivo processado
+            geral.Geral.moveArquivos(arquivo, new File(arquivo.getPath().replace("enviar", "processados").replace(".env", ".ok")));            
+        } catch (DaoException ex) {
+            // move arquivo processado
+            File novoArquivo = new File(arquivo.getPath().replace("enviar", "erros").replace("alt-", "Atualizacao_falhou_alt-").replace(".env", ".err"));
+            geral.Geral.moveArquivos(arquivo, novoArquivo);
+        }
+         // Grava arquivo log arquivo processado OK
+        HArquivoDAO.inserirHistorico(arquivo.getName(), proc);
+
+    } 
+    
+    private static void ProcessaMovimentacao(BufferedReader inputStream, File arquivo) throws IOException, DaoException {
+        String linha, proc = "NAO";
+        int nLinha = 1;
+        MovimentacaoTO mvTO = new MovimentacaoTO();
+        while ((linha  = inputStream.readLine()) != null ){
+            
+            switch(nLinha) {
+                case 1:
+                    mvTO.setCnpj(linha.replace("<cnpj>", "").replace("</cnpj>", "").trim());
+                    break;                    
+                case 2:
+                    mvTO.setCodigo(linha.replace("<codigo>", "").replace("</codigo>", "").trim());
+                    break;
+                case 3:
+                    mvTO.setEan(linha.replace("<ean>", "").replace("</ean>", "").trim());
+                    break;
+                case 4:
+                    mvTO.setChave(linha.replace("<qual_a_chave>", "").replace("</qual_a_chave>", "").trim().toUpperCase());
+                    break; 
+                case 5:
+                    mvTO.setTipo(linha.replace("<tipo>", "").replace("</tipo>", "").trim().toUpperCase());
+                    break;                     
+                case 6:
+                    mvTO.setQuantidade(Double.valueOf(linha.replace("<quantidade>", "").replace("</quantidade>", "")));
+                    break;                     
+                case 7:
+                    mvTO.setObservacao(linha.replace("<observacao>", "").replace("</observacao>", "").trim());
+                    break;                     
+            }
+           
+            nLinha = nLinha + 1;
+        }
+        inputStream.close();
+        try {
+            // Grava registro na tabela loja
+            MovimentacaoDAO.movimentacaoProduto(mvTO, arquivo.getName());
+            proc = "Sim";
+             // move arquivo processado
+            geral.Geral.moveArquivos(arquivo, new File(arquivo.getPath().replace("enviar", "processados").replace(".env", ".ok")));            
+        } catch (DaoException ex) {
+            // move arquivo processado
+            File novoArquivo = new File(arquivo.getPath().replace("enviar", "erros").replace("alt-", "Movimentacao_falhou_alt-").replace(".env", ".err"));
+            geral.Geral.moveArquivos(arquivo, novoArquivo);
+        }
+         // Grava arquivo log arquivo processado OK
+        HArquivoDAO.inserirHistorico(arquivo.getName(), proc);
 
     }    
 }

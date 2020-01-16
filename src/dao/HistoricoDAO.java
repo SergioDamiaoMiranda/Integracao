@@ -6,22 +6,23 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import to.LojaTO;
+import to.HistoricoTO;
 
-public class LojaDAO {
+public class HistoricoDAO {
 
     java.util.Date hoje = new java.util.Date();
     private static final String INSERT_SQL
-            = "INSERT INTO loja "
-            + "(cnpj, codigo, nome, nome_arquivo, data_cadastro, "
-            + " hora_cadastro) "
-            + "VALUES(?,?,?,?,?,?)";
-
+            = "INSERT INTO hist_movimentacao "
+            + "(cnpj_loja, tipo, codigo, ean, quantidade, "
+            + " qual_foi_chave, observacao, nome_arquivo, data_movimentacao, hora_movimentacao) "
+            + " VALUES(?,?,?,?,?,"
+            + "        ?,?,?,?,?) ";
+    
     public static Connection getConnection() throws SQLException {
         return DataBaseDaoFactory.getConnection();
     }
 
-    public static void inserirLoja(LojaTO ljTO) throws DaoException {
+    public static void inserirHistorico(HistoricoTO hTO) throws DaoException {
         Connection con = null;
         PreparedStatement ps = null;        // Data Hora Systema
         String data = "yyyy/MM/dd";
@@ -33,19 +34,25 @@ public class LojaDAO {
         dataS = formata.format(agora);
         formata = new SimpleDateFormat(hora);
         horaS = formata.format(agora);
-
         try {
             int i = 1;
             con = getConnection();
             ps = con.prepareStatement(INSERT_SQL);
-            ps.setString(i++, ljTO.getCnpj());
-            ps.setString(i++, ljTO.getCodigo());
-            ps.setString(i++, ljTO.getNome());
-            ps.setString(i++, ljTO.getArquivo());
+            ps.setString(i++, hTO.getCnpj());
+            ps.setString(i++, hTO.getTipo());            
+            ps.setString(i++, hTO.getCodigo());
+            ps.setString(i++, hTO.getEan());
+            ps.setDouble(i++, hTO.getQuantidade());            
+            
+            ps.setString(i++, hTO.getQual_foi_chave());
+            ps.setString(i++, hTO.getObservacao());
+            ps.setString(i++, hTO.getArquivo());
             ps.setString(i++, dataS);
             ps.setString(i++, horaS);
+            
             ps.executeUpdate();            
         } catch (SQLException e) {
+             System.out.println("------------------------------ erro  " + e.getMessage());  
             throw new DaoException(e);
         } finally {
             try {
@@ -55,7 +62,6 @@ public class LojaDAO {
                 throw new DaoException(ex);
             }
         }
-        
     }
 
 }

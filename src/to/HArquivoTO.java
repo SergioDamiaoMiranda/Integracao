@@ -11,7 +11,7 @@ import java.io.Serializable;
  * @author Sérgio Damião
  */
 public class HArquivoTO implements Serializable {
-    private static final long serialVersionUID = -7200598440016241963L;
+    private static final long serialVersionUID = -6600598440016241963L;
 
     private int id;
     private String arquivo = "";
