@@ -376,4 +376,24 @@ public class Geral {
             }
         }
     }
+    
+    public static boolean temConexaoInternet() {
+        boolean conexao = false;
+        try {
+            //java.net.URL testaConexao = new java.net.URL("http://www.google.com");
+            java.net.URL testaConexao = new java.net.URL("http://www.rosamarc.srv.br");
+            java.net.URLConnection conn = testaConexao.openConnection();
+            java.net.HttpURLConnection httpConn = (java.net.HttpURLConnection) conn;
+            httpConn.connect();
+            if (httpConn.getResponseCode() == 200) {
+                conexao = true;
+            }
+        } catch (IOException ioexcp) {
+            conexao = false;
+            System.out.println("---------------------------------------------");
+            System.out.println("--------- Erro " + ioexcp.getMessage());
+            System.out.println("--------------------------------------------");
+        }
+        return conexao;
+    }    
 }

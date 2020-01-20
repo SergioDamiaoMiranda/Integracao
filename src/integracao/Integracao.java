@@ -95,7 +95,10 @@ public class Integracao {
             timer.scheduleAtFixedRate(new TimerTask() {
                 @Override
                 public void run() {
-                    processaArquivos();
+                    //teste se tem internet
+                    if (geral.Geral.temConexaoInternet()) {
+                         processaArquivos();
+                    }
                 }
             }, delay, intervalo);
             
@@ -107,8 +110,7 @@ public class Integracao {
     private static void processaArquivos(){
         // pegar arquivo no diretorio padrao
 
-        String linha, parteNome;
-        PrintWriter outputStream = null;
+        String parteNome;
         BufferedReader inputStream;        
         
 	File file = new File(localPathEnviar);
