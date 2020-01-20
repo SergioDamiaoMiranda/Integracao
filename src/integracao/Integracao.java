@@ -167,6 +167,7 @@ public class Integracao {
              // move arquivo processado
             geral.Geral.moveArquivos(arquivo, new File(arquivo.getPath().replace("enviar", "processados").replace(".env", ".ok")));            
         } catch (DaoException ex) {
+            System.out.println("Erro cadastro loja - " + ex.getMessage());
             // move arquivo processado
             File novoArquivo = new File(arquivo.getPath().replace("enviar", "erros").replace("cad-", "Loja_JA_cadastrada_cad-").replace(".env", ".err"));
             geral.Geral.moveArquivos(arquivo, novoArquivo);
@@ -217,6 +218,7 @@ public class Integracao {
              // move arquivo processado
             geral.Geral.moveArquivos(arquivo, new File(arquivo.getPath().replace("enviar", "processados").replace(".env", ".ok")));            
         } catch (DaoException ex) {
+            System.out.println("Erro cadastro produto - " + ex.getMessage());
             // move arquivo processado
             File novoArquivo = new File(arquivo.getPath().replace("enviar", "erros").replace("cad-", "Produto_JA_cadastrada_cad-").replace(".env", ".err"));
             geral.Geral.moveArquivos(arquivo, novoArquivo);
@@ -263,6 +265,7 @@ public class Integracao {
              // move arquivo processado
             geral.Geral.moveArquivos(arquivo, new File(arquivo.getPath().replace("enviar", "processados").replace(".env", ".ok")));            
         } catch (DaoException ex) {
+            System.out.println("Erro alteracao status - " + ex.getMessage());
             // move arquivo processado
             File novoArquivo = new File(arquivo.getPath().replace("enviar", "erros").replace("alt-", "Atualizacao_falhou_alt-").replace(".env", ".err"));
             geral.Geral.moveArquivos(arquivo, novoArquivo);
@@ -312,6 +315,7 @@ public class Integracao {
              // move arquivo processado
             geral.Geral.moveArquivos(arquivo, new File(arquivo.getPath().replace("enviar", "processados").replace(".env", ".ok")));            
         } catch (DaoException ex) {
+            System.out.println("Erro movimentacao produto - " + ex.getMessage());
             // move arquivo processado
             File novoArquivo = new File(arquivo.getPath().replace("enviar", "erros").replace("alt-", "Movimentacao_falhou_alt-").replace(".env", ".err"));
             geral.Geral.moveArquivos(arquivo, novoArquivo);

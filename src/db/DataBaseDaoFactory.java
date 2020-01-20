@@ -22,8 +22,8 @@ public class DataBaseDaoFactory {
         com.mysql.jdbc.Connection conn = null;
 
         try {
-            String urlPg = "jdbc:mysql://" + getLinhasIP() + ":3306/integracao_bd";       
-            conn = (com.mysql.jdbc.Connection) DriverManager.getConnection(urlPg, "integracao", "integracao");
+            String urlPg = "jdbc:mysql://" + getLinhasIP() + ":3306/rosamarc_show_pisos";       
+            conn = (com.mysql.jdbc.Connection) DriverManager.getConnection(urlPg, "rosamarc_master", "RosaM@rc505");
         } catch (SQLException | NullPointerException ex) {
             System.out.println("Erro Servidor MySQL." + ex);
         }
@@ -40,11 +40,11 @@ public class DataBaseDaoFactory {
             BufferedReader br = new BufferedReader(reader);
             ip = br.readLine().trim();
             if (ip.equals("")) {
-                ip="localhost";
+                ip="rosamarc.srv.br";
             }
             return  ip;
         } catch (IOException | NullPointerException | ValidacaoException ex) {
-            return "localhost";
+            return "rosamarc.srv.br";
         }
     }
 
