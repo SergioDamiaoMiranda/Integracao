@@ -343,7 +343,7 @@ public class Geral {
         }
     }
 
-    public static void moveArquivos(File origem, File destino) throws IOException {
+    public static void moveArquivo(File origem, File destino) throws IOException {
         try {
             InputStream in = new FileInputStream(origem);
             OutputStream out = new FileOutputStream(destino);           // Transferindo bytes de entrada para saída
@@ -369,7 +369,7 @@ public class Geral {
             String[] children = diretorioOrigem.list();
             for (String children1 : children) {
                 try {
-                    moveArquivos(new File(diretorioOrigem, children1), new File(diretorioDestino, children1));
+                    moveArquivo(new File(diretorioOrigem, children1), new File(diretorioDestino, children1));
                 } catch (IOException ex) {
                     Logger.getLogger(Geral.class.getName()).log(Level.SEVERE, null, ex);
                 }

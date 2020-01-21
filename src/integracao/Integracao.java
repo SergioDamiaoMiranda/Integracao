@@ -118,10 +118,13 @@ public class Integracao {
 	int i = 0;
 	for (int j = afile.length; i < j; i++) {
             File arquivos = afile[i];                
-            parteNome = arquivos.getName().substring(0,arquivos.getName().indexOf("_"));            
+            parteNome = arquivos.getName().substring(0,arquivos.getName().indexOf("_"));    
+           
             try {
                 inputStream = new BufferedReader(new FileReader(arquivos));
 
+                if (parteNome.equals("fim")) finalizaIntegracao(inputStream, arquivos); 
+                
                 if (parteNome.equals("mov-produto")) ProcessaMovimentacao(inputStream, arquivos); 
                 else {
                     if (parteNome.equals("alt-status")) ProcessaAlteracaoStatus(inputStream, arquivos); 
@@ -167,12 +170,12 @@ public class Integracao {
             LojaDAO.inserirLoja(clTO);
             proc = "Sim";
              // move arquivo processado
-            geral.Geral.moveArquivos(arquivo, new File(arquivo.getPath().replace("enviar", "processados").replace(".env", ".ok")));            
+            geral.Geral.moveArquivo(arquivo, new File(arquivo.getPath().replace("enviar", "processados").replace(".env", ".ok")));            
         } catch (DaoException ex) {
             System.out.println("Erro cadastro loja - " + ex.getMessage());
             // move arquivo processado
             File novoArquivo = new File(arquivo.getPath().replace("enviar", "erros").replace("cad-", "Loja_JA_cadastrada_cad-").replace(".env", ".err"));
-            geral.Geral.moveArquivos(arquivo, novoArquivo);
+            geral.Geral.moveArquivo(arquivo, novoArquivo);
         }
          // Grava arquivo log arquivo processado OK
         HArquivoDAO.inserirHistorico(arquivo.getName(), proc);
@@ -218,12 +221,12 @@ public class Integracao {
             ProdutoDAO.inserirProduto(prTO);
             proc = "Sim";
              // move arquivo processado
-            geral.Geral.moveArquivos(arquivo, new File(arquivo.getPath().replace("enviar", "processados").replace(".env", ".ok")));            
+            geral.Geral.moveArquivo(arquivo, new File(arquivo.getPath().replace("enviar", "processados").replace(".env", ".ok")));            
         } catch (DaoException ex) {
             System.out.println("Erro cadastro produto - " + ex.getMessage());
             // move arquivo processado
             File novoArquivo = new File(arquivo.getPath().replace("enviar", "erros").replace("cad-", "Produto_JA_cadastrada_cad-").replace(".env", ".err"));
-            geral.Geral.moveArquivos(arquivo, novoArquivo);
+            geral.Geral.moveArquivo(arquivo, novoArquivo);
         }
          // Grava arquivo log arquivo processado OK
         HArquivoDAO.inserirHistorico(arquivo.getName(), proc);
@@ -265,12 +268,12 @@ public class Integracao {
             AlteraStatusDAO.alterarStatusProduto(alTO, arquivo.getName());
             proc = "Sim";
              // move arquivo processado
-            geral.Geral.moveArquivos(arquivo, new File(arquivo.getPath().replace("enviar", "processados").replace(".env", ".ok")));            
+            geral.Geral.moveArquivo(arquivo, new File(arquivo.getPath().replace("enviar", "processados").replace(".env", ".ok")));            
         } catch (DaoException ex) {
             System.out.println("Erro alteracao status - " + ex.getMessage());
             // move arquivo processado
             File novoArquivo = new File(arquivo.getPath().replace("enviar", "erros").replace("alt-", "Atualizacao_falhou_alt-").replace(".env", ".err"));
-            geral.Geral.moveArquivos(arquivo, novoArquivo);
+            geral.Geral.moveArquivo(arquivo, novoArquivo);
         }
          // Grava arquivo log arquivo processado OK
         HArquivoDAO.inserirHistorico(arquivo.getName(), proc);
@@ -315,16 +318,27 @@ public class Integracao {
             MovimentacaoDAO.movimentacaoProduto(mvTO, arquivo.getName());
             proc = "Sim";
              // move arquivo processado
-            geral.Geral.moveArquivos(arquivo, new File(arquivo.getPath().replace("enviar", "processados").replace(".env", ".ok")));            
+            geral.Geral.moveArquivo(arquivo, new File(arquivo.getPath().replace("enviar", "processados").replace(".env", ".ok")));            
         } catch (DaoException ex) {
             System.out.println("Erro movimentacao produto - " + ex.getMessage());
             // move arquivo processado
             File novoArquivo = new File(arquivo.getPath().replace("enviar", "erros").replace("alt-", "Movimentacao_falhou_alt-").replace(".env", ".err"));
-            geral.Geral.moveArquivos(arquivo, novoArquivo);
+            geral.Geral.moveArquivo(arquivo, novoArquivo);
         }
          // Grava arquivo log arquivo processado OK
         HArquivoDAO.inserirHistorico(arquivo.getName(), proc);
 
-    }    
+    }  
+    
+    private static void finalizaIntegracao(BufferedReader inputStream, File arquivo) throws IOException, DaoException {
+
+        inputStream.close();
+        // move arquivo processado
+        geral.Geral.moveArquivo(arquivo, new File(arquivo.getPath().replace("enviar", "processados").replace(".env", ".ok")));
+         // Grava arquivo log arquivo processado OK
+        HArquivoDAO.inserirHistorico(arquivo.getName(), "Sim");
+        System.exit(0);
+        
+    } 
 }
 
