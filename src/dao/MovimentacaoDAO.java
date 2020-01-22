@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import to.DataHoraTO;
 import to.HistoricoTO;
 import to.MovimentacaoTO;
 
@@ -13,17 +14,17 @@ public class MovimentacaoDAO {
 
     java.util.Date hoje = new java.util.Date();
     private static final String UPDATE_SQL_ENTRADA_EAN
-            = "UPDATE estoque  SET saldo = saldo + ? WHERE cnpj_loja = ? and ean = ? ";
+            = "UPDATE estoque  SET saldo = saldo + ?, data_ult_ent = ? WHERE cnpj_loja = ? and ean = ? ";
     private static final String UPDATE_SQL_SAIDA_EAN
-            = "UPDATE estoque  SET saldo = saldo - ? WHERE cnpj_loja = ? and ean = ?";
+            = "UPDATE estoque  SET saldo = saldo - ?, data_ult_sai = ? WHERE cnpj_loja = ? and ean = ?";
     private static final String UPDATE_SQL_INVENTARIO_EAN
             = "UPDATE estoque  SET saldo = ? WHERE cnpj_loja = ? and ean = ?";
  
     
     private static final String UPDATE_SQL_ENTRADA_CODIGO
-            = "UPDATE estoque  SET saldo = saldo + ? WHERE cnpj_loja = ? and codigo = ? ";
+            = "UPDATE estoque  SET saldo = saldo + ?, data_ult_ent = ? WHERE cnpj_loja = ? and codigo = ? ";
     private static final String UPDATE_SQL_SAIDA_CODIGO
-            = "UPDATE estoque  SET saldo = saldo - ? WHERE cnpj_loja = ? and codigo = ?";
+            = "UPDATE estoque  SET saldo = saldo - ?, data_ult_sai = ? WHERE cnpj_loja = ? and codigo = ?";
     private static final String UPDATE_SQL_INVENTARIO_CODIGO
             = "UPDATE estoque  SET saldo = ? WHERE cnpj_loja = ? and codigo = ?";    
     
@@ -31,16 +32,10 @@ public class MovimentacaoDAO {
         return DataBaseDaoFactory.getConnection();
     }
 
+    
     public static void movimentacaoProduto(MovimentacaoTO mvTO, String arquivo) throws DaoException {
-        // Data Hora Systema
-        String data = "yyyy/MM/dd";
-        String hora = "HH:mm";
-        String dataS, horaS, aux;
-        java.util.Date agora = new java.util.Date();
-        SimpleDateFormat formata = new SimpleDateFormat(data);
-        dataS = formata.format(agora);
-        formata = new SimpleDateFormat(hora);
-        horaS = formata.format(agora);
+        
+        DataHoraTO dhTO = dataHora();
 
         try {
 
@@ -56,7 +51,7 @@ public class MovimentacaoDAO {
             throw new DaoException(e);
         }
         
-                        // Inserindo historico movimentacao
+        // Inserindo historico movimentacao
         HistoricoTO hTO = new HistoricoTO();
         hTO.setCnpj(mvTO.getCnpj());
         hTO.setTipo(mvTO.getTipo());
@@ -66,12 +61,15 @@ public class MovimentacaoDAO {
         hTO.setQual_foi_chave(mvTO.getChave());
         hTO.setObservacao(mvTO.getObservacao());
         hTO.setArquivo(arquivo);
-        hTO.setDataMovimentacao(dataS);
-        hTO.setHoraMovimentacao(horaS);
+        hTO.setDataMovimentacao(dhTO.getDataOperacao());
+        hTO.setHoraMovimentacao(dhTO.getHoraOperacao());
         HistoricoDAO.inserirHistorico(hTO);
     }
 
     private static void entradaEan(MovimentacaoTO mvTO) throws SQLException {
+        
+        DataHoraTO dhTO = dataHora();
+        
         Connection con;
         PreparedStatement ps;         
         int i = 1;
@@ -79,6 +77,7 @@ public class MovimentacaoDAO {
         ps = con.prepareStatement(UPDATE_SQL_ENTRADA_EAN);
         String aux;
         ps.setDouble(i++, mvTO.getQuantidade());
+        ps.setString(i++, dhTO.getDataOperacao());
         //Condicao WHERE
         ps.setString(i++, mvTO.getCnpj());
         ps.setString(i++, mvTO.getEan());
@@ -88,6 +87,9 @@ public class MovimentacaoDAO {
     }
 
     private static void entradaCodigo(MovimentacaoTO mvTO) throws SQLException {
+        
+        DataHoraTO dhTO = dataHora();
+                
         Connection con;
         PreparedStatement ps;         
         int i = 1;
@@ -95,6 +97,7 @@ public class MovimentacaoDAO {
         ps = con.prepareStatement(UPDATE_SQL_ENTRADA_CODIGO);
         String aux;
         ps.setDouble(i++, mvTO.getQuantidade());
+        ps.setString(i++, dhTO.getDataOperacao());        
         //Condicao WHERE
         ps.setString(i++, mvTO.getCnpj());
         ps.setString(i++, mvTO.getCodigo());
@@ -104,6 +107,9 @@ public class MovimentacaoDAO {
     }
     
     private static void saidaEan(MovimentacaoTO mvTO) throws SQLException {
+        
+        DataHoraTO dhTO = dataHora();
+                
         Connection con;
         PreparedStatement ps;         
         int i = 1;
@@ -111,6 +117,7 @@ public class MovimentacaoDAO {
         ps = con.prepareStatement(UPDATE_SQL_SAIDA_EAN);
         String aux;
         ps.setDouble(i++, mvTO.getQuantidade());
+        ps.setString(i++, dhTO.getDataOperacao());        
         //Condicao WHERE
         ps.setString(i++, mvTO.getCnpj());
         ps.setString(i++, mvTO.getEan());
@@ -120,13 +127,16 @@ public class MovimentacaoDAO {
     }
 
     private static void saidaCodigo(MovimentacaoTO mvTO) throws SQLException {
+        
+        DataHoraTO dhTO = dataHora();
+
         Connection con;
         PreparedStatement ps;         
         int i = 1;
         con = getConnection();
         ps = con.prepareStatement(UPDATE_SQL_SAIDA_CODIGO);
-        String aux;
         ps.setDouble(i++, mvTO.getQuantidade());
+        ps.setString(i++, dhTO.getDataOperacao());        
         //Condicao WHERE
         ps.setString(i++, mvTO.getCnpj());
         ps.setString(i++, mvTO.getCodigo());
@@ -165,6 +175,21 @@ public class MovimentacaoDAO {
         ps.executeUpdate();
         con.close();
         ps.close();                    
+    }
+    
+    
+    private static DataHoraTO dataHora() {
+
+        DataHoraTO dhTO = new DataHoraTO();
+        // Data Hora Systema
+        String data = "yyyy/MM/dd";
+        String hora = "HH:mm";
+        java.util.Date agora = new java.util.Date();
+        SimpleDateFormat formata = new SimpleDateFormat(data);
+        dhTO.setDataOperacao(formata.format(agora));
+        formata = new SimpleDateFormat(hora);
+        dhTO.setHoraOperacao(formata.format(agora));
+        return dhTO;
     }
     
 }

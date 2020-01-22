@@ -18,7 +18,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.swing.JOptionPane;
@@ -42,6 +42,9 @@ public class Integracao {
        
 
     public static void main(String[] args) {
+        
+        TimeZone.setDefault(TimeZone.getTimeZone("GMT-03:00"));
+                
         // Verifica a estrutura dos arquivos
         if (!ApplicationInstanceManager.registerInstance()) {
             // instance already running.
