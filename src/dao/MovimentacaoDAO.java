@@ -38,7 +38,6 @@ public class MovimentacaoDAO {
         DataHoraTO dhTO = dataHora();
 
         try {
-
             
         if(mvTO.getTipo().equals("E") && mvTO.getChave().equals("E")) entradaEan(mvTO);
         if(mvTO.getTipo().equals("E") && mvTO.getChave().equals("C")) entradaCodigo(mvTO);   

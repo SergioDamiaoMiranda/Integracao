@@ -10,7 +10,7 @@ import java.io.Serializable;
  *
  * @author Sérgio Damião
  */
-public class AlteraStatusTO implements Serializable {
+public class AlterarStatusTO implements Serializable {
     private static final long serialVersionUID = -7200598440016241616L;
 
 

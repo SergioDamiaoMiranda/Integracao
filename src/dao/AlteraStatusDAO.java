@@ -6,7 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import to.AlteraStatusTO;
+import to.AlterarStatusTO;
 import to.HistoricoTO;
 
 public class AlteraStatusDAO {
@@ -21,7 +21,7 @@ public class AlteraStatusDAO {
         return DataBaseDaoFactory.getConnection();
     }
 
-    public static void alterarStatusProduto(AlteraStatusTO alTO, String arquivo) throws DaoException {
+    public static void alterarStatusProduto(AlterarStatusTO alTO, String arquivo) throws DaoException {
         Connection con = null;
         PreparedStatement ps = null;        // Data Hora Systema
         String data = "yyyy/MM/dd";
